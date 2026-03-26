@@ -1,6 +1,6 @@
 Package: violoop-rknn
 Version: 2.3.2
-Architecture: arm64
+Architecture: armhf
 Maintainer: Alex <alexliu@zcdigitalsglobal.com>
 Description: Rockchip RKNN Runtime Library
  Prebuilt libraries and headers for Rockchip NPU inference
