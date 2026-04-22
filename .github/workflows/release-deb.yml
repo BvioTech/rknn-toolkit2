@@ -2,8 +2,8 @@ name: Release
 
 on:
   push:
-    branches:
-      - violoop
+    tags:
+      - "v*"
   workflow_dispatch:
 
 jobs:
@@ -16,12 +16,12 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build deb package
-        run: ./rknpu2/runtime/Linux/librknn_api/package.sh ${{ matrix.arch }}
+        run: ./rknpu2/runtime/Linux/package.sh ${{ matrix.arch }}
 
       - uses: actions/upload-artifact@v4
         with:
           name: deb-${{ matrix.arch }}
-          path: 'rknpu2/runtime/Linux/librknn_api/*.deb'
+          path: 'rknpu2/runtime/Linux/*.deb'
 
   release:
     runs-on: ubuntu-latest

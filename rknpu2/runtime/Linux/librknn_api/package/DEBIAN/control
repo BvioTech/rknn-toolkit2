@@ -1,8 +1,0 @@
-Package: violoop-rknn
-Version: 2.3.2
-Architecture: armhf
-Maintainer: Alex <alexliu@zcdigitalsglobal.com>
-Description: Rockchip RKNN Runtime Library
- Prebuilt libraries and headers for Rockchip NPU inference
- platform (rkllm-runtime). Provides the rknn C/C++ API for
- deploying AI models on RK3588/RK3576/RK3562/RV1126B.

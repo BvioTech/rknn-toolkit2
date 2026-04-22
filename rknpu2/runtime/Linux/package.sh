@@ -32,13 +32,30 @@ esac
 
 # Stage files into package directory
 rm -rf "${PKG_DIR}/usr"
-mkdir -p "${PKG_DIR}/usr/lib" "${PKG_DIR}/usr/include"
+mkdir -p \
+    "${PKG_DIR}/usr/bin" \
+    "${PKG_DIR}/usr/lib" \
+    "${PKG_DIR}/usr/lib/systemd/system" \
+    "${PKG_DIR}/usr/include"
 
 # Headers
-cp -a "${SCRIPT_DIR}/include"/*.h "${PKG_DIR}/usr/include/"
+cp -a "${SCRIPT_DIR}/librknn_api/include"/*.h "${PKG_DIR}/usr/include/"
 
-# Prebuilt libraries
-cp -a "${SCRIPT_DIR}/${LIB_DIR}"/*.so "${PKG_DIR}/usr/lib/"
+# Prebuilt runtime library
+cp -a "${SCRIPT_DIR}/librknn_api/${LIB_DIR}"/*.so "${PKG_DIR}/usr/lib/"
+
+# rknn_server binary
+install -m 0755 \
+    "${SCRIPT_DIR}/rknn_server/${LIB_DIR}/usr/bin/rknn_server" \
+    "${PKG_DIR}/usr/bin/rknn_server"
+
+# systemd service unit
+install -m 0644 \
+    "${SCRIPT_DIR}/rknn_server/rknn-server.service" \
+    "${PKG_DIR}/usr/lib/systemd/system/rknn-server.service"
+
+# Ensure DEBIAN maintainer scripts are executable
+chmod 0755 "${PKG_DIR}/DEBIAN/postinst" "${PKG_DIR}/DEBIAN/prerm" "${PKG_DIR}/DEBIAN/postrm"
 
 # Patch architecture in control file
 sed -i "s/^Architecture: .*/Architecture: ${DEB_ARCH}/" "${PKG_DIR}/DEBIAN/control"

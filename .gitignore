@@ -3,6 +3,5 @@ build/
 install/
 .vscode
 
-rknpu2/runtime/Linux/librknn_api/package/*
-!rknpu2/runtime/Linux/librknn_api/package/DEBIAN
+rknpu2/runtime/Linux/package/usr
 *.deb
