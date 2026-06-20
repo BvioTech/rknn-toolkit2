@@ -1,0 +1,10 @@
+Package: violoop-rknn
+Version: 2.3.2
+Architecture: armhf
+Maintainer: Alex <alexliu@zcdigitalsglobal.com>
+Depends: libc6
+Description: Rockchip RKNN runtime and NPU server
+ Prebuilt runtime library (librknnrt.so), headers, and the rknn_server
+ NPU proxy daemon for Rockchip platforms (RK3588/RK3576/RK3562/RV1126B).
+ rknn_server is installed as a systemd service (rknn-server.service)
+ and started automatically.

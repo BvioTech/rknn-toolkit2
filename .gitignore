@@ -2,3 +2,6 @@
 build/
 install/
 .vscode
+
+rknpu2/runtime/Linux/package/usr
+*.deb
