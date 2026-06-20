@@ -1,9 +1,0 @@
-prefix=/usr
-libdir=${prefix}/lib/aarch64-linux-gnu
-includedir=${prefix}/include
-
-Name: rknn
-Description: Rockchip RKNN NPU runtime
-Version: 2.3.2
-Libs: -L${libdir} -lrknnrt
-Cflags: -I${includedir}
