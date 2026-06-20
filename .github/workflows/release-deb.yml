@@ -9,19 +9,25 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [arm, aarch64]
+    container: debian:bookworm
     steps:
+      # debian:bookworm has no git/ca-certs; needed before actions/checkout.
+      - name: Prereqs for checkout
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends git ca-certificates
+
       - uses: actions/checkout@v4
 
-      - name: Build deb package
-        run: ./rknpu2/runtime/Linux/package.sh ${{ matrix.arch }}
+      - name: Build arm64 deb (bookworm native cross)
+        run: ./scripts/package.sh
 
       - uses: actions/upload-artifact@v4
         with:
-          name: deb-${{ matrix.arch }}
-          path: 'rknpu2/runtime/Linux/*.deb'
+          name: deb-arm64
+          path: |
+            *.deb
+            *.sha256
 
   release:
     runs-on: ubuntu-latest
@@ -36,18 +42,10 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
-          files: '*.deb'
+          files: |
+            *.deb
+            *.sha256
 
-      - name: Notify apt repo
-        env:
-          SECRET: ${{ secrets.APT_WEBHOOK_SECRET }}
-          HOOK_URL: https://deb.violoop.ai/hook/release
-        run: |
-          BODY=$(jq -cn --arg r "${{ github.repository }}" --arg t "${{ github.ref_name }}" \
-            '{repo:$r, tag:$t}')
-          SIG=sha256=$(printf '%s' "$BODY" | openssl dgst -sha256 -hmac "$SECRET" -hex | awk '{print $2}')
-          curl -fsS --retry 3 --retry-delay 5 --max-time 30 \
-            -X POST "$HOOK_URL" \
-            -H "Content-Type: application/json" \
-            -H "X-Hub-Signature-256: $SIG" \
-            --data "$BODY"
+      # No apt webhook: this is a public repo and GitHub does not expose the
+      # org APT_WEBHOOK_SECRET to it. These vendored deps change rarely, so we
+      # rely on violoop-apt's hourly full sync to pick up new releases.
