@@ -1,0 +1,42 @@
+#!/usr/bin/make -f
+# RKNN runtime is prebuilt blobs (no build). Split (mpp-style) into librknnrt
+# (runtime .so) + librknnrt-dev (headers + pkg-config) + rknn-server (daemon +
+# service). Source tracks airockchip rknn-toolkit2; files come from
+# rknpu2/runtime/Linux/.
+export DH_VERBOSE = 1
+DEB_HOST_MULTIARCH ?= aarch64-linux-gnu
+RT := rknpu2/runtime/Linux
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+override_dh_auto_build:
+override_dh_auto_test:
+
+override_dh_auto_install:
+	# librknnrt: prebuilt runtime library
+	install -d debian/librknnrt/usr/lib/$(DEB_HOST_MULTIARCH)
+	install -m644 $(RT)/librknn_api/aarch64/librknnrt.so \
+		debian/librknnrt/usr/lib/$(DEB_HOST_MULTIARCH)/
+	# librknnrt-dev: headers + pkg-config
+	install -d debian/librknnrt-dev/usr/include
+	install -m644 $(RT)/librknn_api/include/*.h debian/librknnrt-dev/usr/include/
+	install -d debian/librknnrt-dev/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig
+	install -m644 debian/rknn.pc \
+		debian/librknnrt-dev/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig/rknn.pc
+	# rknn-server: daemon + systemd unit
+	install -d debian/rknn-server/usr/bin debian/rknn-server/lib/systemd/system
+	install -m755 $(RT)/rknn_server/aarch64/usr/bin/rknn_server \
+		debian/rknn-server/usr/bin/rknn_server
+	install -m644 $(RT)/rknn_server/rknn-server.service \
+		debian/rknn-server/lib/systemd/system/rknn-server.service
+
+override_dh_installsystemd:
+	dh_installsystemd -p rknn-server --name=rknn-server rknn-server.service
+
+# Prebuilt vendor blobs: keep byte-exact (no strip / dwz); deps declared
+# explicitly in control (DT_NEEDED are all standard libs), skip shlibdeps.
+override_dh_strip:
+override_dh_dwz:
+override_dh_shlibdeps:
